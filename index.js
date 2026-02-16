@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import voice from "elevenlabs-node";
 import express from "express";
-import { promises as fs } from "fs";
+import { promises as fs, constants as fsConstants } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import OpenAI from "openai";
@@ -11,6 +11,7 @@ dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const audiosDir = path.join(__dirname, "audios");
+const tempAudiosDir = process.env.AUDIOS_DIR || path.join("/tmp", "audios");
 const rhubarbPath = path.join(__dirname, "bin", "rhubarb");
 
 const openai = new OpenAI({
@@ -42,12 +43,12 @@ const execCommand = (command) => {
   });
 };
 
-const lipSyncMessage = async (message) => {
+const lipSyncMessage = async (message, outputDir) => {
   const time = new Date().getTime();
   console.log(`Starting conversion for message ${message}`);
-  const mp3 = path.join(audiosDir, `message_${message}.mp3`);
-  const wav = path.join(audiosDir, `message_${message}.wav`);
-  const json = path.join(audiosDir, `message_${message}.json`);
+  const mp3 = path.join(outputDir, `message_${message}.mp3`);
+  const wav = path.join(outputDir, `message_${message}.wav`);
+  const json = path.join(outputDir, `message_${message}.json`);
   await execCommand(`ffmpeg -y -i "${mp3}" "${wav}"`);
   console.log(`Conversion done in ${new Date().getTime() - time}ms`);
   await execCommand(`"${rhubarbPath}" -f json -o "${json}" "${wav}" -r phonetic`);
@@ -104,8 +105,15 @@ app.post("/chat", async (req, res) => {
       return;
     }
 
-    // Ensure required directories exist
-    await fs.mkdir(audiosDir, { recursive: true });
+    let writableAudiosDir = audiosDir;
+    try {
+      await fs.mkdir(audiosDir, { recursive: true });
+      await fs.access(audiosDir, fsConstants.W_OK);
+    } catch (err) {
+      // Serverless file systems are often read-only; fallback to /tmp
+      await fs.mkdir(tempAudiosDir, { recursive: true });
+      writableAudiosDir = tempAudiosDir;
+    }
 
     // Ensure rhubarb binary exists
     try {
@@ -170,7 +178,7 @@ app.post("/chat", async (req, res) => {
 
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
-      const fileName = path.join(audiosDir, `message_${i}.mp3`);
+      const fileName = path.join(writableAudiosDir, `message_${i}.mp3`);
       const textInput = message.text;
       try {
         await voice.textToSpeech(elevenLabsApiKey, voiceID, fileName, textInput);
@@ -196,7 +204,7 @@ app.post("/chat", async (req, res) => {
       }
 
       try {
-        await lipSyncMessage(i);
+        await lipSyncMessage(i, writableAudiosDir);
       } catch (err) {
         console.error("Rhubarb/ffmpeg error:", err?.message || err);
         res.status(500).send({
@@ -207,7 +215,9 @@ app.post("/chat", async (req, res) => {
       }
 
       message.audio = await audioFileToBase64(fileName);
-      message.lipsync = await readJsonTranscript(path.join(audiosDir, `message_${i}.json`));
+      message.lipsync = await readJsonTranscript(
+        path.join(writableAudiosDir, `message_${i}.json`)
+      );
     }
 
     res.send({ messages });
