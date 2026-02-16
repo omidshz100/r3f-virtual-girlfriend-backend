@@ -18,12 +18,12 @@ const openai = new OpenAI({
 });
 
 const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
-const voiceID = "kgG7dCoKCfLehAPWkJOE";
+const voiceID = "cgSgspJ2msm6clMCkdW9";
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-const port = 3000;
+const port = process.env.PORT || 3002;
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
