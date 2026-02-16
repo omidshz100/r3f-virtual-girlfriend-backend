@@ -43,6 +43,15 @@ const execCommand = (command) => {
   });
 };
 
+const commandExists = async (command) => {
+  try {
+    await execCommand(`command -v ${command}`);
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 const lipSyncMessage = async (message, outputDir) => {
   const time = new Date().getTime();
   console.log(`Starting conversion for message ${message}`);
@@ -54,6 +63,16 @@ const lipSyncMessage = async (message, outputDir) => {
   await execCommand(`"${rhubarbPath}" -f json -o "${json}" "${wav}" -r phonetic`);
   // -r phonetic is faster but less accurate
   console.log(`Lip sync done in ${new Date().getTime() - time}ms`);
+};
+
+const buildEmptyLipsync = () => {
+  return {
+    metadata: {
+      soundFile: "",
+      duration: 0,
+    },
+    mouthCues: [],
+  };
 };
 app.get("/omid", (req, res) => {
   res.send("Hello World");
@@ -115,15 +134,19 @@ app.post("/chat", async (req, res) => {
       writableAudiosDir = tempAudiosDir;
     }
 
-    // Ensure rhubarb binary exists
+    const ffmpegAvailable = await commandExists("ffmpeg");
+    let rhubarbAvailable = true;
     try {
-      await fs.access(rhubarbPath);
+      await fs.access(rhubarbPath, fsConstants.X_OK);
     } catch (err) {
-      res.status(500).send({
-        error: "Rhubarb not found",
-        details: `Expected executable at ${rhubarbPath}`,
-      });
-      return;
+      rhubarbAvailable = false;
+    }
+
+    const canLipSync = ffmpegAvailable && rhubarbAvailable;
+    if (!canLipSync) {
+      console.warn(
+        `Lip-sync disabled (ffmpeg: ${ffmpegAvailable}, rhubarb: ${rhubarbAvailable}).`
+      );
     }
 
     let completion;
@@ -203,21 +226,21 @@ app.post("/chat", async (req, res) => {
         return;
       }
 
-      try {
-        await lipSyncMessage(i, writableAudiosDir);
-      } catch (err) {
-        console.error("Rhubarb/ffmpeg error:", err?.message || err);
-        res.status(500).send({
-          error: "Lip-sync generation failed",
-          details: err?.message || String(err),
-        });
-        return;
+      if (canLipSync) {
+        try {
+          await lipSyncMessage(i, writableAudiosDir);
+          message.lipsync = await readJsonTranscript(
+            path.join(writableAudiosDir, `message_${i}.json`)
+          );
+        } catch (err) {
+          console.error("Rhubarb/ffmpeg error:", err?.message || err);
+          message.lipsync = buildEmptyLipsync();
+        }
+      } else {
+        message.lipsync = buildEmptyLipsync();
       }
 
       message.audio = await audioFileToBase64(fileName);
-      message.lipsync = await readJsonTranscript(
-        path.join(writableAudiosDir, `message_${i}.json`)
-      );
     }
 
     res.send({ messages });
