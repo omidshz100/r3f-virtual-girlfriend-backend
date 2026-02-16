@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R3F Virtual Companion - AI Systems Engineering Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #f7fafc;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 4px solid #FF6600;
+            padding: 40px 60px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            color: #FF6600;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header .course {
+            font-size: 0.95em;
+            color: #718096;
+        }
+
+        .content {
+            padding: 60px;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section h2 {
+            color: #1a202c;
+            font-size: 1.6em;
+            margin-bottom: 25px;
+            font-weight: 700;
+            padding-left: 15px;
+            border-left: 5px solid #FF6600;
+        }
+
+        .section p {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .highlight-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 30px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .highlight-card:hover {
+            border-color: #FF6600;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
+        }
+
+        .highlight-card h3 {
+            color: #FF6600;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .highlight-card p {
+            font-size: 0.98em;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .download-section {
+            background: #FF6600;
+            padding: 50px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: white;
+            color: #FF6600;
+            padding: 16px 50px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-btn::before {
+            content: "📄 ";
+            margin-right: 8px;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            font-size: 0.9em;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .tech-badge {
+            background: #fff5f0;
+            color: #FF6600;
+            border: 1px solid #FF6600;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .checklist-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .checklist-table th {
+            background: #1a202c;
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .checklist-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95em;
+        }
+
+        .checklist-table tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .checklist-table tr:hover {
+            background: #fff5f0;
+        }
+
+        ul {
+            margin-left: 40px;
+            font-size: 1.05em;
+            color: #4a5568;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .highlights {
+                grid-template-columns: 1fr;
+            }
+
+            .download-btn {
+                padding: 14px 35px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 R3F Virtual Companion</h1>
+            <div class="subtitle">An Innovation-Driven AI System</div>
+            <div class="course">AI Systems Engineering Course | February 2026</div>
+        </div>
+
+        <div class="content">
+            <!-- Project Overview -->
+            <div class="section">
+                <h2>📋 Project Overview</h2>
+                <p>
+                    This project presents an <strong>Innovation-driven AI System</strong> designed to enhance Human-Computer Interaction (HCI) 
+                    through a realistic, real-time Virtual Companion. The system addresses the societal need for digital emotional support 
+                    and immersive conversational interfaces by integrating advanced 3D rendering with Generative AI.
+                </p>
+                <p>
+                    The system follows a <strong>System-Centric architecture</strong> composed of three main subsystems: 
+                    Sensors (Perception), Cognition (LLM Reasoning Engine), and Actuators (3D Avatar Rendering with real-time lip-sync).
+                </p>
+            </div>
+
+            <!-- Video Demo -->
+            <div class="section">
+                <h2>🎥 Demo Video</h2>
+                <div class="video-container">
+                    <iframe 
+                        src="https://www.youtube.com/embed/Y4-KilwGcms" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+
+            <!-- Key Highlights -->
+            <div class="section">
+                <h2>✨ Key Achievements</h2>
+                <div class="highlights">
+                    <div class="highlight-card">
+                        <h3>🧠 LLM-Powered Reasoning</h3>
+                        <p>Natural, emotionally-aware conversation using state-of-the-art language models with structured JSON output.</p>
+                    </div>
+                    <div class="highlight-card">
+                        <h3>🎙️ Speech Synthesis</h3>
+                        <p>Realistic vocal delivery with diverse voice IDs and tone control using ElevenLabs TTS API.</p>
+                    </div>
+                    <div class="highlight-card">
+                        <h3>🎭 Real-time 3D Animation</h3>
+                        <p>Expressive avatars with synchronized lip movements and facial expressions using React Three Fiber.</p>
+                    </div>
+                    <div class="highlight-card">
+                        <h3>☁️ Scalable Deployment</h3>
+                        <p>Web-accessible interface deployable on serverless platforms with graceful fallback behavior.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technology Stack -->
+            <div class="section">
+                <h2>🛠️ Technology Stack</h2>
+                <div class="tech-stack">
+                    <span class="tech-badge">Node.js + Express</span>
+                    <span class="tech-badge">OpenAI GPT-3.5</span>
+                    <span class="tech-badge">ElevenLabs TTS</span>
+                    <span class="tech-badge">React Three Fiber</span>
+                    <span class="tech-badge">FFmpeg + Rhubarb</span>
+                    <span class="tech-badge">Vercel Serverless</span>
+                    <span class="tech-badge">RESTful API</span>
+                    <span class="tech-badge">WebGL</span>
+                </div>
+            </div>
+
+            <!-- System Architecture -->
+            <div class="section">
+                <h2>🏗️ System Architecture</h2>
+                <p><strong>Functional Pipeline (Perception → Cognition → Action):</strong></p>
+                <ul style="margin-left: 40px; font-size: 1.1em; color: #555;">
+                    <li><strong>Sensors/Perception:</strong> User text or voice input capture</li>
+                    <li><strong>Data Conditioning:</strong> Request parsing and prompt formatting</li>
+                    <li><strong>ML/Cognition:</strong> LLM generates context-aware, emotionally-aware responses</li>
+                    <li><strong>Computing/Orchestration:</strong> TTS conversion and animation metadata generation</li>
+                    <li><strong>Human-Machine Teaming:</strong> 3D avatar renders synchronized speech with expressions</li>
+                </ul>
+            </div>
+
+            <!-- Engineering Challenge -->
+            <div class="section">
+                <h2>⚡ Primary Engineering Challenge</h2>
+                <p>
+                    <strong>Latency Optimization:</strong> Minimizing latency in the audio-to-animation pipeline to prevent "uncanny valley" 
+                    effects where visual feedback (lip movement) lags perceptibly behind audio output.
+                </p>
+                <p><strong>Solutions Implemented:</strong></p>
+                <ul style="margin-left: 40px; font-size: 1.1em; color: #555;">
+                    <li>Fallback to writable temp directory (/tmp) for serverless environments</li>
+                    <li>Graceful degradation when ffmpeg/rhubarb unavailable</li>
+                    <li>Prompt optimization for faster LLM generation</li>
+                    <li>Parallel processing for batch TTS requests</li>
+                </ul>
+            </div>
+
+            <!-- Download PDF -->
+            <div class="download-section">
+                <h2 style="color: white; margin-bottom: 20px;">📥 Download Full Report</h2>
+                <a href="R3F_Virtual_Companion_AI_Systems_Engineering.pdf" class="download-btn" download>Download PDF Report</a>
+            </div>
+
+            <!-- Future Work -->
+            <div class="section">
+                <h2>🚀 Future Enhancements</h2>
+                <div class="highlights">
+                    <div class="highlight-card">
+                        <h3>Short-term</h3>
+                        <p>Automated test suite, user feedback loop, multi-language support</p>
+                    </div>
+                    <div class="highlight-card">
+                        <h3>Medium-term</h3>
+                        <p>Dedicated lip-sync microservice, streaming API, RAG integration</p>
+                    </div>
+                    <div class="highlight-card">
+                        <h3>Long-term</h3>
+                        <p>PEFT/LoRA personalization, continuous training loop, multi-modal perception</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 R3F Virtual Companion Project | AI Systems Engineering Course</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Innovation-Driven AI System Report</p>
+        </div>
+    </div>
+</body>
+</html>
