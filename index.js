@@ -24,6 +24,7 @@ const voiceID = "cgSgspJ2msm6clMCkdW9";
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(express.static(__dirname));
 const port = process.env.PORT || 3002;
 
 app.get("/", (req, res) => {
